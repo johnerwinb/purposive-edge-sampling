@@ -11,4 +11,15 @@ https://www.statmethods.net/advstats/bootstrapping.html
 
 http://www2.ece.rochester.edu/~gmateosb/ECE442/Slides/block_4_sampling_modeling_inference_part_b.pdf
 
+#pps package
 https://cran.r-project.org/web/packages/pps/pps.pdf
+
+#sampling package
+https://www.rdocumentation.org/packages/sampling/versions/2.8/topics/inclusionprobabilities
+can pps be done in inclusionprobstrata?
+sampford, midzuno, tille are pps 
+
+#samplingbook package
+https://www.rdocumentation.org/packages/samplingbook/versions/1.2.2/topics/pps.sampling
+
+in pps.sampling function sampford, midzuno, tille, and madow are pps options
