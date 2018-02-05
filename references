@@ -1,0 +1,14 @@
+#bootstrap
+
+#bootnet package
+https://www.rdocumentation.org/packages/bootnet/versions/1.0.1/topics/bootnet
+https://arxiv.org/pdf/1604.08462.pdf
+
+#boot package
+https://www.statmethods.net/advstats/bootstrapping.html
+
+#sampling
+
+http://www2.ece.rochester.edu/~gmateosb/ECE442/Slides/block_4_sampling_modeling_inference_part_b.pdf
+
+https://cran.r-project.org/web/packages/pps/pps.pdf
