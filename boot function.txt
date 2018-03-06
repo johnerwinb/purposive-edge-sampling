@@ -1,3 +1,81 @@
+library(dplyr)
+library(igraph)
+
+# step by step muna
+
+#generate graph
+g <- sample_pa(10000)
+
+#convert to data frame
+
+g_df <- as_data_frame(g, what="edges")
+head(g_df)
+
+#put id
+
+id <- rownames(g_df)
+g_df <- cbind(id=id, g_df)
+head(g_df)
+
+#take random samples from id
+
+res <- as.data.frame(sample(id, size=100, replace=T)) #we sample the ids
+colnames(res)<- "id" #rename to "id"
+tail(res)
+class(res) #this becomes data.frame from "character" -- value of 'sample'
+
+#test lapply ---it works!
+#https://stackoverflow.com/questions/18375969/rename-columns-in-multiple-dataframes-r
+
+res <- lapply(1:10, function(i) as.data.frame(sample(id, size=10, replace=T))) #we sample the ids
+
+add_id <- function(x) {
+	names(x) <- "id"
+	return(x)
+}
+
+for (i in seq_along(res)) {
+    names(res[[i]]) <- "id"
+}
+
+#select "from" and "to" matched with id -- worked
+
+joined <- merge(g_df, res, by="id")
+tail(joined)
+g_df[918, c('id', 'from', 'to')]
+
+#test join for all res - woohooo!
+#https://stackoverflow.com/questions/49136061/r-subset-a-data-frame-into-multiple-files-given-ids-from-multiple-datasets?noredirect=1#comment85277107_49136061
+
+join <- list()
+
+for(x in 1:length(res))
+{
+  join[[x]] <- graph_from_data_frame(as.data.frame(subset(g_df, id %in% res[[x]]$id)))
+}
+join[1]
+
+#convert to igraph
+
+from <- g_df['from']
+to <- g_df['to']
+colnames(from) <- "actor"
+colnames(to) <- "actor"
+
+actors <- rbind(from, to)
+actors_unique <- actors%>%distinct(actor)
+
+joined_ig <- graph_from_data_frame(joined, directed=TRUE, vertices=actors_unique)
+class(joined_ig)
+centr_degree(joined_ig)$centralization
+
+#there are problems still with data compatibility.
+#sample() produces dgCMATRIX while centr_degree requires igraph
+#explore xConverter from XGR package as solution
+
+9931 9931  9932 8062
+9931 9932 8062
+
 
 b.cntr <- function(data, num) {
 	resamples <- lapply(1:num, function(i) sample(data, replace=T))
@@ -12,7 +90,9 @@ b.cntr <- function(data, num) {
 
 #generate graph
 g1 <- sample_pa_age(500, pa.exp=1, aging.exp=0, aging.bin=1000)
-g <- sample_pa(1000, m=4)
+
+g <- sample_pa(10000)
+centr_degree(g)$centralization
 
 #run
 
@@ -20,6 +100,4 @@ results <- b.cntr(data=g, num=20)
 results
 
 
-#there are problems still with data compatibility.
-#sample() produces dgCMATRIX while centr_degree requires igraph
-#explore xConverter from XGR package as solution
+
