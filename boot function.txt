@@ -99,5 +99,10 @@ centr_degree(g)$centralization
 results <- b.cntr(data=g, num=20)
 results
 
+### from R labs 4
+# this is how you create "actors"...use 'V'.
+# see lab 4 to know how centrality measures are requested.
+central_social <- data.frame(V(s641_social)$name, indegree_social, outdegree_social, incloseness_social, outcloseness_social, betweenness_social, eigen_social)
+central_social 
 
 
