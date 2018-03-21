@@ -1,0 +1,137 @@
+#setup
+
+library(dplyr)
+library(igraph)
+library(pps)
+
+##generate master graph
+g <- sample_pa(10000)
+
+##convert master graph (g) to data frame (g_df)
+
+g_df <- as_data_frame(g, what="edges")
+head(g_df)
+
+
+##create master data frame with aux var
+#create 'actors' data frame
+#this inserts 'in degree' to data frame of edges instead of vertices
+
+g_df$in_degree <- setNames(degree(g, mode = "in"), V(g))[g_df$to]
+g_df
+
+#put id
+
+id <- rownames(g_df)
+g_df <- cbind(id=id, g_df)
+head(g_df)
+
+#create auxiliary variable based on g_in (indegree)
+
+
+g_df$aux1[g_df$in_degree>3] <- 1
+g_df$aux1[0<=g_df$in_degree & g_df$in_degree<=3] <- 2
+g_df
+
+##sample a graph n=?
+#take multiple random pps with aux from id
+
+pps <- lapply(1:10, function(i) as.data.frame(ppswr(g_df$aux1, 100)))
+add_id <- function(x) {
+	names(x) <- "id"
+	return(x)
+}
+
+for (i in seq_along(pps)) {
+    names(pps[[i]]) <- "id"
+}
+
+H <- list()
+for(x in 1:length(pps))
+{
+	H[[x]] <- subset(g_df, id %in% pps[[x]]$id)
+}
+
+H
+pps
+
+#convert to igraph
+
+from <- g_df['from]
+to <- g-df['to']
+
+
+g_smpl <- list()
+for(x in 1:length(H))
+{
+	g_smpl[[x]] <- graph_from_data_frame(H[[x]], directed = TRUE, vertices = NULL)
+}
+
+##compute centrality
+
+
+centr <- function(x) {
+h_centr <- centr_degree(x)
+return(h_centr)
+}
+
+center_results <- lapply(g_smpl, centr)
+center_results
+center_results[[1]]$centralization
+
+##notice that duplicate edges are deleted in this process. Which is good. (?)
+##we dont need that extra edge in the same sampled graph.
+
+##############
+
+res <- as.data.frame(sample(id, size=100, replace=T)) #we sample the ids
+colnames(res)<- "id" #rename to "id"
+tail(res)
+class(res) #this becomes data.frame from "character" -- value of 'sample'
+
+#note that there is no ID which is needed when merging to another file
+#create ID to sample from
+
+id <- rownames(g_df)
+
+#bind the ID to g_df
+
+g_df <- cbind(id=id, g_df)
+head(g_df)
+
+#take random samples
+#test lapply ---it works!
+#https://stackoverflow.com/questions/18375969/rename-columns-in-multiple-dataframes-r
+
+res <- lapply(1:10000, function(i) as.data.frame(sample(id, size=100, replace=T))) #we sample the ids
+
+add_id <- function(x) {
+	names(x) <- "id"
+	return(x)
+}
+
+for (i in seq_along(res)) {
+    names(res[[i]]) <- "id"
+}
+
+H <- list()
+for(x in 1:length(pps))
+{
+	H[[x]] <- subset(g_df, id %in% pps[[x]]$id)
+}
+
+
+
+###############
+
+
+g_in <- degree(g, mode="in")
+g_out <- degree(g, mode="out")
+g_inclo <- closeness(g, mode="in")
+g_outclo <- closeness(g, mode="out")
+g_bet <- betweenness(g)
+set_vertex_attr(g, "name", index=V(g), value = V(g))
+g_master <- data.frame(V = as.vector(V(g)), g_in, g_out, g_inclo, g_outclo, g_bet)
+head(g_master)
+
+#OR
